@@ -1,55 +1,41 @@
-import abc
-import re
+import uuid
 from datetime import datetime
+
 from src.shared.helpers.errors.domain_errors import EntityError
 
 
-class Patient(abc.ABC):
-    patient_id: str
-    cpf: str
-    name: str
-    date_of_birth: datetime
-
+class Patient:
     MIN_NAME_LENGTH = 2
-    CPF_REGEX = r"^\d{3}\.\d{3}\.\d{3}-\d{2}$"
 
-    def __init__(self, patient_id: str, cpf: str, name: str, date_of_birth: datetime):
-        if not Patient.validate_patient_id(patient_id):
+    def __init__(self, cpf: str, name: str, date_of_birth: datetime, patient_id: str = None):
+        if patient_id is None:
+            self.patient_id = str(uuid.uuid4())
+        elif not isinstance(patient_id, str):
             raise EntityError("patient_id")
-        self.patient_id = patient_id
+        else:
+            self.patient_id = patient_id
 
-        if not Patient.validate_cpf(cpf):
+        if not self.validate_cpf(cpf):
             raise EntityError("cpf")
         self.cpf = cpf
 
-        if not Patient.validate_name(name):
+        if not self.validate_name(name):
             raise EntityError("name")
         self.name = name
 
-        if not Patient.validate_date_of_birth(date_of_birth):
+        if not isinstance(date_of_birth, datetime):
             raise EntityError("date_of_birth")
         self.date_of_birth = date_of_birth
-
-    @staticmethod
-    def validate_patient_id(patient_id: str) -> bool:
-        return isinstance(patient_id, str) and len(patient_id.strip()) > 0
 
     @staticmethod
     def validate_cpf(cpf: str) -> bool:
         if not isinstance(cpf, str):
             return False
-        return bool(re.fullmatch(Patient.CPF_REGEX, cpf))
+        return bool(len(cpf) == 14 and cpf.count(".") == 2 and cpf.count("-") == 1)
 
     @staticmethod
     def validate_name(name: str) -> bool:
-        return isinstance(name, str) and len(name.strip()) >= Patient.MIN_NAME_LENGTH
-
-    @staticmethod
-    def validate_date_of_birth(date_of_birth: datetime) -> bool:
-        return isinstance(date_of_birth, datetime)
+        return isinstance(name, str) and len(name) >= Patient.MIN_NAME_LENGTH
 
     def __repr__(self):
-        return (
-            f"Patient(patient_id={self.id}, cpf={self.cpf}, name={self.name}, "
-            f"date_of_birth={self.date_of_birth.isoformat()})"
-        )
+        return f"Patient(patient_id={self.patient_id}, name={self.name}, cpf={self.cpf}, date_of_birth={self.date_of_birth})"

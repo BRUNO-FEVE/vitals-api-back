@@ -13,15 +13,6 @@ class Test_Patient:
             date_of_birth=datetime(1990, 5, 10)
         )
 
-    def test_patient_id_is_none(self):
-        with pytest.raises(EntityError):
-            Patient(
-                patient_id=None,
-                cpf="123.456.789-00",
-                name="João Silva",
-                date_of_birth=datetime(1990, 5, 10)
-            )
-
     def test_patient_id_is_not_str(self):
         with pytest.raises(EntityError):
             Patient(
